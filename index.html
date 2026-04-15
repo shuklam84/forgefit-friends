@@ -1727,7 +1727,7 @@ const PROGRAM = [
 /* ============================================================
    STORAGE
    ============================================================ */
-const STORE = 'forgefit_friends_v2';
+const STORE = 'forgefit_v2';
 
 const Store = {
   get() {
@@ -2467,12 +2467,7 @@ function calcWeekDone(state) {
     const d  = new Date(now);
     d.setDate(now.getDate() + off + i);
     const ds = localDateStr(d);
-    if (state.workouts[ds]) {
-      count++;
-    } else {
-      const pidx = programDayIndex(state, ds);
-      if (PROGRAM[pidx] && (PROGRAM[pidx].isRest || PROGRAM[pidx].isCardio)) count++;
-    }
+    if (state.workouts[ds]) count++;
   }
   return count;
 }
