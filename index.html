@@ -519,6 +519,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .pill.wt { color: var(--accent); border-color: rgba(255,94,0,0.3); }
+.pill.wk-badge { color: var(--blue); border-color: rgba(129,140,248,0.3); }
+.pill.deload-badge { color: var(--yellow); border-color: rgba(250,204,21,0.3); }
+.pill.deload-wt { color: var(--yellow); border-color: rgba(250,204,21,0.3); }
 
 .ex-tip {
   margin: 0 16px 12px;
@@ -1799,7 +1802,7 @@ const PROGRAM = [
 /* ============================================================
    STORAGE
    ============================================================ */
-const STORE = 'forgefit_friends_v1';
+const STORE = 'forgefit_v2';
 
 const Store = {
   get() {
@@ -1951,8 +1954,16 @@ const Session = {
 
   init(dayIndex) {
     this.dayIndex  = dayIndex;
-    this.doneSets  = {};
     this.startTime = Date.now();
+
+    // Restore in-progress sets from localStorage for today
+    const saved = Store.get().workouts[today()];
+    if (saved && saved.dayIndex === dayIndex && saved.doneSets) {
+      this.doneSets = { ...saved.doneSets };
+      if (saved.startTime) this.startTime = saved.startTime;
+    } else {
+      this.doneSets = {};
+    }
   },
 
   toggle(key, sectionKey, exIdx, setIdx, btn) {
@@ -1979,7 +1990,23 @@ const Session = {
         Timer.start(isCompound ? 90 : 60, isCompound ? 'Compound' : 'Isolation');
       }
     }
+    // Persist immediately so page reload preserves progress
+    this._persist();
     this._updateProgress();
+  },
+
+  _persist() {
+    const state = Store.get();
+    const existing = state.workouts[today()] || {};
+    state.workouts[today()] = {
+      ...existing,
+      dayIndex:  this.dayIndex,
+      dayName:   PROGRAM[this.dayIndex].name,
+      doneSets:  { ...this.doneSets },
+      startTime: this.startTime,
+      ts:        Date.now(),
+    };
+    Store.save(state);
   },
 
   _getEx(sectionKey, exIdx) {
@@ -2013,21 +2040,70 @@ const Session = {
 /* ============================================================
    RENDER HELPERS
    ============================================================ */
+/* ── Progressive overload helpers ──────────────────────────────── */
+function currentWeekNum(state) {
+  if (!state || !state.startDate) return 1;
+  const days = Math.floor((new Date(today()) - new Date(state.startDate)) / 86400000);
+  return Math.max(1, Math.floor(days / 7) + 1);
+}
+
+function recommendWeight(weightStr, weekNum) {
+  // Only process numeric ranges like "60–80 lbs" or "30–40 lbs each"
+  if (!weightStr || /bodyweight|band|none/i.test(weightStr)) return null;
+  const m = weightStr.match(/(\d+(?:\.\d+)?)[–\-](\d+(?:\.\d+)?)\s*(.*)/);
+  if (!m) return null;
+  const low = parseFloat(m[1]), high = parseFloat(m[2]), unit = m[3].trim();
+  if (low >= high) return null;
+
+  // 4-week mesocycle: wk1=low, wk2=mid, wk3=high, wk4=deload
+  // Each full 4-week block shifts the range up by 25% of the original range
+  const block = Math.floor((weekNum - 1) / 4);
+  const cycle = (weekNum - 1) % 4; // 0,1,2 = progression; 3 = deload
+  const shift  = block * (high - low) * 0.25;
+  const aLow   = low + shift;
+  const aHigh  = high + shift;
+
+  let rec, isDeload = false;
+  if (cycle === 3) {
+    rec = Math.round(aLow * 0.85 / 2.5) * 2.5;
+    isDeload = true;
+  } else {
+    const pct = cycle / 2; // wk1→0, wk2→0.5, wk3→1
+    rec = Math.round((aLow + pct * (aHigh - aLow)) / 2.5) * 2.5;
+  }
+  return { rec, unit, isDeload };
+}
+
 function buildExCard(ex, exIdx, sectionKey) {
   const card = document.createElement('div');
   card.className = 'ex-card';
   card.id = 'ex-card-' + sectionKey + '-' + exIdx;
 
+  // Progressive weight recommendation
+  const weekNum = currentWeekNum(Store.get());
+  const progRec = recommendWeight(ex.weight, weekNum);
+  const wtLabel = progRec
+    ? `${progRec.rec} ${progRec.unit}`
+    : ex.weight;
+  const wtClass = progRec && progRec.isDeload ? 'pill wt deload-wt' : 'pill wt';
+  const wkBadge = progRec
+    ? `<span class="pill wk-badge${progRec.isDeload ? ' deload-badge' : ''}">${progRec.isDeload ? 'Deload' : 'Wk ' + weekNum}</span>`
+    : '';
+
+  // Build set rows — mark already-done sets from persisted state
   let setsHTML = '';
+  let allSetsDone = ex.sets > 0;
   if (ex.sets) {
     let rows = '';
     for (let s = 0; s < ex.sets; s++) {
       const key = sectionKey + '_' + exIdx + '_' + s;
+      const isDone = !!Session.doneSets[key];
+      if (!isDone) allSetsDone = false;
       rows += `
         <div class="set-row">
           <span class="set-lbl">Set ${s + 1}</span>
           <span class="set-reps">${ex.reps}</span>
-          <button class="set-check" id="sc-${key}"
+          <button class="set-check${isDone ? ' done' : ''}" id="sc-${key}"
                   onclick="Session.toggle('${key}','${sectionKey}',${exIdx},${s},this)"
                   aria-label="Mark set ${s+1} complete">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -2039,21 +2115,26 @@ function buildExCard(ex, exIdx, sectionKey) {
     setsHTML = `<div class="set-list">${rows}</div>`;
   }
 
+  const safeName = ex.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   card.innerHTML = `
     <div class="ex-card-top">
       <div class="ex-idx">${exIdx + 1}</div>
       <div class="ex-info">
-        <button class="ex-name-btn" onclick="ExPanel.open('${ex.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${ex.name}</button>
+        <button class="ex-name-btn" onclick="ExPanel.open('${safeName}')">${ex.name}</button>
         <div class="ex-pills">
           ${ex.sets ? `<span class="pill">${ex.sets} sets</span>` : ''}
           <span class="pill">${ex.reps}</span>
-          <span class="pill wt">${ex.weight}</span>
+          ${wkBadge}
+          <span class="${wtClass}">${wtLabel}</span>
         </div>
       </div>
     </div>
     ${ex.tip ? `<div class="ex-tip">${ex.tip}</div>` : ''}
     ${setsHTML}
   `;
+
+  // Restore card-level done styling if all sets were already completed
+  if (allSetsDone && ex.sets > 0) card.classList.add('done');
 
   return card;
 }
@@ -2297,11 +2378,13 @@ const App = {
     const sets  = Session.doneSetsCount();
 
     state.workouts[today()] = {
-      dayIndex: Session.dayIndex,
-      dayName:  day.name,
-      duration: dur,
-      sets:     sets,
-      ts:       Date.now(),
+      dayIndex:  Session.dayIndex,
+      dayName:   day.name,
+      duration:  dur,
+      sets:      sets,
+      doneSets:  { ...Session.doneSets },
+      completed: true,
+      ts:        Date.now(),
     };
     Store.save(state);
 
@@ -2461,13 +2544,16 @@ function calcWeekDone(state) {
 const Nav = {
   current: 'home',
 
-  go(view) {
+  go(view, pushState = true) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
 
     document.getElementById('v-' + view).classList.add('active');
     document.getElementById('nav-' + view).classList.add('active');
     this.current = view;
+
+    // Update URL hash so Android Chrome can restore after tab suspend
+    if (pushState) history.pushState({ view }, '', '#' + view);
 
     if (view === 'home')    App.renderHome();
     if (view === 'workout') {
@@ -3459,7 +3545,19 @@ document.addEventListener('DOMContentLoaded', () => {
     state.startDate = today();
     Store.save(state);
   }
-  App.renderHome();
+
+  // Restore view from URL hash (critical for Android Chrome tab suspend/resume)
+  const VALID_VIEWS = ['home', 'workout', 'program', 'stats'];
+  const hash = location.hash.replace('#', '');
+  const startView = VALID_VIEWS.includes(hash) ? hash : 'home';
+  history.replaceState({ view: startView }, '', '#' + startView);
+  Nav.go(startView, false);
+});
+
+// Browser back/forward button support
+window.addEventListener('popstate', e => {
+  const view = (e.state && e.state.view) || 'home';
+  Nav.go(view, false);
 });
 </script>
 </body>
