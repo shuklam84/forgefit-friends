@@ -1727,7 +1727,7 @@ const PROGRAM = [
 /* ============================================================
    STORAGE
    ============================================================ */
-const STORE = 'forgefit_friends_v5';
+const STORE = 'forgefit_v2';
 
 const Store = {
   get() {
@@ -2434,7 +2434,9 @@ const App = {
 function getState() { return Store.get(); }
 
 function calcStreak(state) {
+  if (!state.workouts || Object.keys(state.workouts).length === 0) return 0;
   let streak = 0;
+  let hitRealWorkout = false;
   const checkD = dateObj(today());
 
   // If today isn't logged yet, check from yesterday
@@ -2447,8 +2449,9 @@ function calcStreak(state) {
 
     if (state.workouts[ds]) {
       streak++;
-    } else if (pday && (pday.isRest || pday.isCardio)) {
-      streak++; // rest/recovery days don't break streak
+      hitRealWorkout = true;
+    } else if (hitRealWorkout && pday && (pday.isRest || pday.isCardio)) {
+      streak++; // rest/recovery days don't break an existing streak
     } else {
       break;
     }
