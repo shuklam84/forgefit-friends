@@ -1250,110 +1250,28 @@ a { color: inherit; text-decoration: none; }
 .wt-rec-lbl { color: var(--t2); font-weight: 500; }
 .wt-rec-val { color: var(--accent); font-weight: 700; font-family: var(--font-d); font-size: 17px; }
 
-/* Exercise demonstration image / GIF area */
-.ep-gif-area {
+/* YouTube tutorial button */
+.ep-yt-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
+  padding: 15px 18px;
+  background: #FF0000;
   border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--bg-2);
-  margin-bottom: 14px;
-  min-height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  border: 1px solid var(--border);
-}
-
-.ep-demo-img {
-  width: 100%;
-  max-height: 240px;
-  object-fit: contain;
-  display: block;
-  border-radius: var(--radius) var(--radius) 0 0;
-  background: #f0ece8;  /* light bg so dark line-art illustrations are visible */
-}
-
-/* Spinner */
-.ep-spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Fallback SVG container */
-.ep-fallback {
-  width: 100%;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.ep-fallback-label {
-  font-size: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-family: var(--font-d);
+  font-size: 17px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--t3);
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.ep-img-src {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--t3);
-  text-align: right;
-  padding: 4px 8px 6px;
-  background: var(--bg-2);
-  border-radius: 0 0 var(--radius) var(--radius);
-}
-
-/* Animated elements inside fallback SVGs */
-@keyframes arrowUp {
-  0%, 100% { transform: translateY(0);  opacity: 0.65; }
-  50%       { transform: translateY(-7px); opacity: 1; }
-}
-@keyframes arrowFwd {
-  0%, 100% { transform: translateX(0);  opacity: 0.65; }
-  50%       { transform: translateX(7px); opacity: 1; }
-}
-@keyframes arrowBack {
-  0%, 100% { transform: translateX(0);  opacity: 0.65; }
-  50%       { transform: translateX(-7px); opacity: 1; }
-}
-@keyframes arrowDown {
-  0%, 100% { transform: translateY(0);  opacity: 0.65; }
-  50%       { transform: translateY(7px); opacity: 1; }
-}
-@keyframes arrowOut {
-  0%, 100% { transform: scaleX(1);   opacity: 0.65; }
-  50%       { transform: scaleX(1.2); opacity: 1; }
-}
-@keyframes bodyRock {
-  0%, 100% { transform: rotate(0deg); }
-  50%       { transform: rotate(-4deg); }
-}
-.arr-up   { animation: arrowUp   1.4s ease-in-out infinite; transform-origin: center bottom; }
-.arr-fwd  { animation: arrowFwd  1.4s ease-in-out infinite; }
-.arr-back { animation: arrowBack 1.4s ease-in-out infinite; }
-.arr-down { animation: arrowDown 1.4s ease-in-out infinite; transform-origin: center top; }
-.arr-out  { animation: arrowOut  1.4s ease-in-out infinite; transform-origin: center; }
-.rock     { animation: bodyRock  1.8s ease-in-out infinite; transform-origin: 130px 88px; }
-
-/* Source attribution badge */
-.ep-src-badge {
-  position: absolute;
-  bottom: 6px; right: 8px;
-  font-size: 9px;
-  color: var(--t3);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  pointer-events: none;
-}
+.ep-yt-btn:active { opacity: 0.82; }
 
 /* Ex name tap button */
 .ex-name-btn {
@@ -1558,6 +1476,7 @@ a { color: inherit; text-decoration: none; }
 
   <div class="hist-reset-area">
     <button class="reset-btn" onclick="App.resetProgram()">Reset Program Start Date</button>
+    <button class="reset-btn" onclick="App.clearHistory()" style="background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:#ef4444;margin-top:10px;">Clear Workout History</button>
   </div>
 </div>
 
@@ -1591,7 +1510,13 @@ a { color: inherit; text-decoration: none; }
     <div class="ex-panel-pills" id="ep-pills"></div>
   </div>
   <div class="ex-panel-body">
-    <div class="ep-gif-area" id="ep-gif-area"></div>
+    <a class="ep-yt-btn" id="ep-yt-link" target="_blank" rel="noopener noreferrer">
+      <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
+        <rect width="28" height="20" rx="4" fill="#fff" fill-opacity="0.15"/>
+        <path d="M11 6l8 4-8 4V6z" fill="#fff"/>
+      </svg>
+      <span id="ep-yt-label">Watch Tutorial on YouTube</span>
+    </a>
     <div class="body-diagram" id="ep-diagram"></div>
     <div class="muscle-chips"  id="ep-chips"></div>
     <div class="cues-title">Form Cues</div>
@@ -1802,7 +1727,7 @@ const PROGRAM = [
 /* ============================================================
    STORAGE
    ============================================================ */
-const STORE = 'forgefit_friends_v2';
+const STORE = 'forgefit_v2';
 
 const Store = {
   get() {
@@ -1821,8 +1746,14 @@ const Store = {
 /* ============================================================
    DATE UTILITIES
    ============================================================ */
+function localDateStr(d) {
+  // Use local timezone so midnight in Pacific = correct date (not UTC+8hrs)
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateStr(new Date());
 }
 
 function dateObj(str) {
@@ -2217,7 +2148,7 @@ const App = {
     for (let i = 0; i < 7; i++) {
       const d = new Date(now);
       d.setDate(now.getDate() + mondayOff + i);
-      const ds      = d.toISOString().slice(0, 10);
+      const ds      = localDateStr(d);
       const isToday = ds === today();
       const isDone  = !!state.workouts[ds];
       const pIdx    = programDayIndex(state, ds);
@@ -2487,6 +2418,14 @@ const App = {
     Nav.go('home');
     App.renderHome();
   },
+
+  clearHistory() {
+    if (!confirm('Clear all workout history? This resets your streak and workout count to 0.')) return;
+    const state   = getState();
+    state.workouts = {};
+    Store.save(state);
+    Nav.go('stats');
+  },
 };
 
 /* ============================================================
@@ -2502,7 +2441,7 @@ function calcStreak(state) {
   if (!state.workouts[today()]) checkD.setDate(checkD.getDate() - 1);
 
   for (let i = 0; i < 365; i++) {
-    const ds   = checkD.toISOString().slice(0, 10);
+    const ds   = localDateStr(checkD);
     const pidx = programDayIndex(state, ds);
     const pday = PROGRAM[pidx];
 
@@ -2527,7 +2466,7 @@ function calcWeekDone(state) {
   for (let i = 0; i < 7; i++) {
     const d  = new Date(now);
     d.setDate(now.getDate() + off + i);
-    const ds = d.toISOString().slice(0, 10);
+    const ds = localDateStr(d);
     if (state.workouts[ds]) {
       count++;
     } else {
@@ -2890,358 +2829,6 @@ const EXLIB = {
   },
 };
 
-/* ============================================================
-   EXERCISE IMAGE — wger.de fetch + localStorage cache
-   ============================================================ */
-const IMG_PFX = 'ff_eximg_v3_';
-const IMG_TTL = 7 * 86400000; // 7 days
-
-async function fetchExImage(name) {
-  const ckey   = IMG_PFX + name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-  const cached = (() => { try { return JSON.parse(localStorage.getItem(ckey)); } catch(e) { return null; } })();
-  if (cached && (Date.now() - cached.ts) < IMG_TTL) return cached;
-
-  // Normalise name: strip parentheses, dashes, "light", "barbell" → cleaner search
-  const stripped = name.replace(/\(.*?\)/g, '').replace(/[–\-]/g, ' ')
-                       .replace(/\b(light|barbell|dumbbell|db|bb)\b/gi, '').trim();
-  const term = encodeURIComponent(stripped);
-
-  try {
-    // Step 1 — search wger.de (free, no key, CORS-open)
-    const sRes = await fetch(
-      `https://wger.de/api/v2/exercise/search/?term=${term}&language=english&format=json`,
-      { signal: AbortSignal.timeout(7000) }
-    );
-    if (!sRes.ok) throw new Error('search');
-    const sData = await sRes.json();
-    const sugg  = (sData.suggestions || []);
-    if (!sugg.length) return _cacheImg(ckey, { fallback: true });
-
-    // Relevance check: only use the image if the suggestion shares meaningful
-    // words with our exercise name. wger.de always returns *something* even
-    // for a total mismatch, so we must filter those out ourselves.
-    const suggName = (sugg[0].value || '').toLowerCase();
-    const exWords  = stripped.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-    const matched  = exWords.filter(w => suggName.includes(w)).length;
-    if (matched === 0) return _cacheImg(ckey, { fallback: true });
-
-    const baseId = sugg[0].data.base_id;
-
-    // Step 2 — fetch images for that base exercise
-    const iRes = await fetch(
-      `https://wger.de/api/v2/exerciseimage/?exercise_base_id=${baseId}&format=json`,
-      { signal: AbortSignal.timeout(7000) }
-    );
-    if (!iRes.ok) throw new Error('images');
-    const iData   = await iRes.json();
-    const results = iData.results || [];
-    if (!results.length) return _cacheImg(ckey, { fallback: true });
-
-    // Prefer main image; wger returns full or relative URLs
-    const first = results.find(r => r.is_main) || results[0];
-    let url = first.image;
-    if (url && url.startsWith('/')) url = 'https://wger.de' + url;
-
-    return _cacheImg(ckey, { url });
-  } catch(e) {
-    return _cacheImg(ckey, { fallback: true });
-  }
-}
-
-function _cacheImg(key, data) {
-  const obj = { ...data, ts: Date.now() };
-  try { localStorage.setItem(key, JSON.stringify(obj)); } catch(e) {}
-  return obj;
-}
-
-/* ============================================================
-   MOVEMENT TYPE MAP → SVG FALLBACKS
-   ============================================================ */
-const MOVE_MAP = [
-  [/bench press|incline.*press|close.grip.*press|chest press|push.up/i,     'press'],
-  [/overhead press|shoulder press|military/i,                                 'ohpress'],
-  [/skull crusher|overhead extension|tricep.*ext|kickback|bench dip|tricep.*dip/i, 'tricepx'],
-  [/row|pull.apart|face pull|renegade/i,                                      'row'],
-  [/curl|concentration/i,                                                      'curl'],
-  [/lateral raise|front raise|rear delt|fly|flye/i,                           'raise'],
-  [/goblet squat|squat|lunge|step.up|thruster/i,                              'squat'],
-  [/romanian|deadlift|hinge|hip hinge/i,                                      'hinge'],
-  [/kettlebell swing|swing/i,                                                  'swing'],
-  [/plank|mountain climb|shoulder tap|leg raise|crunch|russian twist|bicycle/i,'core'],
-  [/calf raise/i,                                                              'calf'],
-];
-
-function getMovementType(name) {
-  for (const [re, type] of MOVE_MAP) { if (re.test(name)) return type; }
-  return 'generic';
-}
-
-// Arrow path helpers
-const UP_ARR   = `<polyline points="123,10 130,2 137,10" fill="none" stroke="#FF5E00" stroke-width="2.2" stroke-linejoin="round"/>
-                  <line x1="130" y1="2" x2="130" y2="22" stroke="#FF5E00" stroke-width="2.2" stroke-linecap="round"/>`;
-const DOWN_ARR = `<polyline points="123,12 130,20 137,12" fill="none" stroke="#FF5E00" stroke-width="2.2" stroke-linejoin="round"/>
-                  <line x1="130" y1="2" x2="130" y2="20" stroke="#FF5E00" stroke-width="2.2" stroke-linecap="round"/>`;
-const BACK_ARR = `<polyline points="12,9 4,16 12,23" fill="none" stroke="#FF5E00" stroke-width="2.2" stroke-linejoin="round"/>
-                  <line x1="4" y1="16" x2="24" y2="16" stroke="#FF5E00" stroke-width="2.2" stroke-linecap="round"/>`;
-
-// Stick-figure building blocks
-// All figures use a 260×172 viewBox.  Key joint coords for upright standing:
-//   Head centre (130,18)r12 · neck (130,30-38) · shoulder L(108,44) R(152,44)
-//   torso (130,44-90) · hip L(113,90) R(147,90)
-//   knee L(107,122) R(153,122) · foot L(103,154) R(157,154)
-
-const S = {  // shared stroke props
-  f: 'fill="none"',
-  s: (c='#aaa',w=2.5) => `stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`,
-  acc: '#FF5E00',
-};
-const head  = `<circle cx="130" cy="18" r="12" fill="none" stroke="#aaa" stroke-width="2.5"/>`;
-const body  = `<line x1="130" y1="30" x2="130" y2="90" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>`;
-const legs  = `<line x1="130" y1="90" x2="113" y2="122" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-               <line x1="113" y1="122" x2="109" y2="154" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-               <line x1="130" y1="90" x2="147" y2="122" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-               <line x1="147" y1="122" x2="151" y2="154" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>`;
-// Arm sets
-const armsDown  = `<line x1="108" y1="44" x2="94"  y2="80"  stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-                   <line x1="94"  y1="80" x2="88"  y2="112" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-                   <line x1="152" y1="44" x2="166" y2="80"  stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-                   <line x1="166" y1="80" x2="172" y2="112" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>`;
-const armsUp    = `<line x1="108" y1="44" x2="92"  y2="18"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-                   <line x1="92"  y1="18" x2="82"  y2="4"   stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-                   <line x1="152" y1="44" x2="168" y2="18"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-                   <line x1="168" y1="18" x2="178" y2="4"   stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>`;
-const barbell   = `<line x1="75" y1="4" x2="185" y2="4" stroke="#555" stroke-width="4" stroke-linecap="round"/>
-                   <ellipse cx="80"  cy="4" rx="5" ry="9" fill="#333" stroke="#666" stroke-width="1.5"/>
-                   <ellipse cx="180" cy="4" rx="5" ry="9" fill="#333" stroke="#666" stroke-width="1.5"/>`;
-
-// SVG wrapper
-function fig(inner, label) {
-  return `<svg viewBox="0 0 260 172" width="100%" style="max-height:220px;display:block;">
-    <rect width="260" height="172" fill="#111" rx="7"/>
-    ${inner}
-    <text x="130" y="167" text-anchor="middle" font-family="Barlow Condensed,sans-serif"
-          font-size="10" font-weight="800" letter-spacing="2" text-transform="uppercase"
-          fill="#444">${label.toUpperCase()}</text>
-  </svg>`;
-}
-
-const FALLBACK_SVGS = {
-
-  // ── PRESS: arms pressing overhead ───────────────────────────────────
-  press: fig(`
-    ${head}${body}${legs}
-    ${armsUp}${barbell}
-    <g class="arr-up" style="transform-origin:130px 160px">
-      <line x1="130" y1="160" x2="130" y2="140" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="123,148 130,140 137,148" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Press / Push'),
-
-  // ── OVERHEAD PRESS: same but arms at shoulder→overhead transition ────
-  ohpress: fig(`
-    ${head}${body}${legs}
-    <line x1="108" y1="44" x2="88"  y2="34" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="88"  y1="34" x2="76"  y2="8"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="152" y1="44" x2="172" y2="34" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="172" y1="34" x2="184" y2="8"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="68" y1="8" x2="192" y2="8" stroke="#555" stroke-width="4" stroke-linecap="round"/>
-    <ellipse cx="73"  cy="8" rx="5" ry="9" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <ellipse cx="187" cy="8" rx="5" ry="9" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <g class="arr-up" style="transform-origin:130px 162px">
-      <line x1="130" y1="162" x2="130" y2="142" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="123,150 130,142 137,150" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Overhead Press'),
-
-  // ── TRICEP EXTENSION / KICKBACK ──────────────────────────────────────
-  tricepx: fig(`
-    ${head}${body}${legs}
-    <!-- arms hinged at elbow, forearm extends back -->
-    <line x1="108" y1="44" x2="88"  y2="64" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="88"  y1="64" x2="68"  y2="56" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="152" y1="44" x2="172" y2="64" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="172" y1="64" x2="192" y2="56" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- circles for dumbbells -->
-    <circle cx="64"  cy="56" r="5" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <circle cx="196" cy="56" r="5" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <g class="arr-back" style="transform-origin:100px 56px">
-      <line x1="55" y1="56" x2="42" y2="56" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="48,50 40,56 48,62" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Tricep Extension'),
-
-  // ── ROW: bent-over pulling back ──────────────────────────────────────
-  row: fig(`
-    <!-- Bent-over figure: torso ~40° forward -->
-    <circle cx="172" cy="44" r="12" fill="none" stroke="#aaa" stroke-width="2.5"/>
-    <line x1="161" y1="54" x2="110" y2="88" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- arms pulling back toward torso -->
-    <line x1="148" y1="65" x2="134" y2="78" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="134" y1="78" x2="150" y2="82" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="148" y1="65" x2="128" y2="70" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="128" y1="70" x2="114" y2="78" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- DB at end of arms -->
-    <rect x="107" y="74" width="14" height="8" rx="2" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <!-- hips -->
-    <line x1="110" y1="88" x2="94"  y2="120" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="94"  y1="120" x2="90" y2="154" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="110" y1="88" x2="126" y2="120" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="126" y1="120" x2="128" y2="154" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- arrow showing pull direction (toward body) -->
-    <g class="arr-back" style="transform-origin:130px 78px">
-      <line x1="96" y1="78" x2="82" y2="78" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="88,72 80,78 88,84" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Row / Pull'),
-
-  // ── CURL: arm bent at elbow ──────────────────────────────────────────
-  curl: fig(`
-    ${head}${body}${legs}
-    <!-- left arm down (neutral) -->
-    <line x1="108" y1="44" x2="96"  y2="80"  stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="96"  y1="80" x2="92"  y2="112" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- right arm curled up -->
-    <line x1="152" y1="44" x2="164" y2="76"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="164" y1="76" x2="148" y2="54"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="144" cy="50" r="6" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <!-- arrow showing curl direction -->
-    <g class="arr-up" style="transform-origin:158px 70px">
-      <line x1="176" y1="76" x2="176" y2="56" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="170,64 176,56 182,64" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Curl'),
-
-  // ── RAISE: arms out to sides ─────────────────────────────────────────
-  raise: fig(`
-    ${head}${body}${legs}
-    <line x1="108" y1="44" x2="68"  y2="60"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="68"  y1="60" x2="44"  y2="74"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="152" y1="44" x2="192" y2="60"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="192" y1="60" x2="216" y2="74"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="40"  cy="76" r="6" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <circle cx="220" cy="76" r="6" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <!-- arrows pointing outward -->
-    <g class="arr-out" style="transform-origin:130px 68px">
-      <line x1="28" y1="76" x2="14" y2="76" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="20,70 12,76 20,82" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-      <line x1="232" y1="76" x2="246" y2="76" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="240,70 248,76 240,82" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Lateral Raise'),
-
-  // ── SQUAT: knees bent, body upright ─────────────────────────────────
-  squat: fig(`
-    ${head}
-    <!-- torso upright -->
-    <line x1="130" y1="30" x2="130" y2="84" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- arms holding KB at chest -->
-    <line x1="108" y1="50" x2="116" y2="66" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="152" y1="50" x2="144" y2="66" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <rect x="118" y="62" width="24" height="16" rx="3" fill="#333" stroke="${S.acc}" stroke-width="1.5"/>
-    <!-- bent legs at ~90° -->
-    <line x1="130" y1="84" x2="100" y2="110" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="100" y1="110" x2="88"  y2="150" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="130" y1="84" x2="160" y2="110" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="160" y1="110" x2="172" y2="150" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- arrow: drive up -->
-    <g class="arr-up" style="transform-origin:130px 162px">
-      <line x1="130" y1="162" x2="130" y2="142" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="123,150 130,142 137,150" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Squat / Lunge'),
-
-  // ── HINGE: hip hinge, back flat ──────────────────────────────────────
-  hinge: fig(`
-    <!-- head at end of hinged torso -->
-    <circle cx="196" cy="52" r="12" fill="none" stroke="#aaa" stroke-width="2.5"/>
-    <!-- torso angled ~30° from horizontal -->
-    <line x1="184" y1="60" x2="112" y2="90" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- arms hanging straight down -->
-    <line x1="155" y1="74" x2="155" y2="106" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="155" y1="106" x2="155" y2="126" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- barbell in hands -->
-    <line x1="128" y1="126" x2="182" y2="126" stroke="#555" stroke-width="4" stroke-linecap="round"/>
-    <ellipse cx="133" cy="126" rx="4" ry="9" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <ellipse cx="177" cy="126" rx="4" ry="9" fill="#333" stroke="#666" stroke-width="1.5"/>
-    <!-- legs slightly bent from hips -->
-    <line x1="112" y1="90" x2="100" y2="126" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="100" y1="126" x2="97"  y2="158" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="112" y1="90" x2="126" y2="126" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="126" y1="126" x2="128" y2="158" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- arrow: hips drive forward -->
-    <g class="arr-fwd" style="transform-origin:112px 90px">
-      <line x1="82" y1="90" x2="66" y2="90" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="74,84 66,90 74,96" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Hip Hinge / Deadlift'),
-
-  // ── SWING: kettlebell swing at top ───────────────────────────────────
-  swing: fig(`
-    ${head}${body}${legs}
-    <!-- arms extending forward-up holding KB -->
-    <line x1="108" y1="44" x2="84"  y2="28"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="84"  y1="28" x2="70"  y2="16"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="152" y1="44" x2="176" y2="28"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="176" y1="28" x2="190" y2="16"  stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- kettlebell -->
-    <rect x="115" y="8" width="30" height="22" rx="5" fill="#333" stroke="${S.acc}" stroke-width="2"/>
-    <path d="M122,8 Q130,2 138,8" fill="none" stroke="#555" stroke-width="3" stroke-linecap="round"/>
-    <!-- hip drive arrow -->
-    <g class="arr-fwd" style="transform-origin:52px 80px">
-      <line x1="52" y1="80" x2="36" y2="80" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="44,74 36,80 44,86" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Kettlebell Swing'),
-
-  // ── CORE: plank position ─────────────────────────────────────────────
-  core: fig(`
-    <!-- horizontal body in plank -->
-    <circle cx="212" cy="78" r="12" fill="none" stroke="#aaa" stroke-width="2.5"/>
-    <!-- torso horizontal -->
-    <line x1="200" y1="84" x2="88"  y2="102" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- forearms on ground -->
-    <line x1="162" y1="90" x2="152" y2="114" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="152" y1="114" x2="128" y2="118" stroke="${S.acc}" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- legs extended back -->
-    <line x1="88" y1="102" x2="68"  y2="112" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="68" y1="112" x2="48"  y2="118" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="88" y1="102" x2="72"  y2="120" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="72" y1="120" x2="48"  y2="128" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- floor line -->
-    <line x1="30" y1="130" x2="230" y2="130" stroke="#2a2a2a" stroke-width="2" stroke-linecap="round"/>
-    <!-- "hold" indicator arrows -->
-    <g class="arr-down" style="transform-origin:130px 100px">
-      <line x1="130" y1="100" x2="130" y2="118" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="124,110 130,118 136,110" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Core / Plank'),
-
-  // ── CALF RAISE ───────────────────────────────────────────────────────
-  calf: fig(`
-    ${head}${body}${armsDown}
-    <!-- legs with raised heels -->
-    <line x1="130" y1="90" x2="114" y2="128" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="114" y1="128" x2="110" y2="158" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="130" y1="90" x2="146" y2="128" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="146" y1="128" x2="150" y2="158" stroke="#aaa" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- toes on floor, heels raised -->
-    <line x1="106" y1="158" x2="122" y2="158" stroke="${S.acc}" stroke-width="3" stroke-linecap="round"/>
-    <line x1="146" y1="158" x2="162" y2="158" stroke="${S.acc}" stroke-width="3" stroke-linecap="round"/>
-    <g class="arr-up" style="transform-origin:130px 160px">
-      <line x1="130" y1="160" x2="130" y2="140" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="123,148 130,140 137,148" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Calf Raise'),
-
-  // ── GENERIC fallback ──────────────────────────────────────────────────
-  generic: fig(`
-    ${head}${body}${legs}${armsDown}
-    <g class="arr-up" style="transform-origin:130px 160px">
-      <line x1="130" y1="160" x2="130" y2="140" stroke="${S.acc}" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="123,148 130,140 137,150" fill="none" stroke="${S.acc}" stroke-width="2.2" stroke-linejoin="round"/>
-    </g>
-  `, 'Exercise'),
-};
 
 /* ============================================================
    EXERCISE PANEL
@@ -3251,9 +2838,10 @@ const ExPanel = {
     const key  = name.toLowerCase();
     const data = EXLIB[key];
 
-    // Show fallback SVG immediately — always visible, no async dependency
-    const gifArea = document.getElementById('ep-gif-area');
-    gifArea.innerHTML = this._fallbackHTML(name);
+    // YouTube tutorial link — search URL always works, no API key needed
+    const ytQuery = encodeURIComponent(name + ' exercise how to proper form');
+    document.getElementById('ep-yt-link').href = 'https://www.youtube.com/results?search_query=' + ytQuery;
+    document.getElementById('ep-yt-label').textContent = 'Watch Tutorial: ' + name;
     document.getElementById('ep-name').textContent = name;
 
     // Find exercise in program for pills (sets/reps/weight)
@@ -3290,13 +2878,6 @@ const ExPanel = {
     document.getElementById('ex-panel-overlay').classList.add('show');
     document.getElementById('ex-panel').classList.add('show');
 
-    // SVG fallback already rendered above — no wger.de fetch needed
-  },
-
-  _fallbackHTML(name) {
-    const type = getMovementType(name);
-    const svg  = FALLBACK_SVGS[type] || FALLBACK_SVGS['generic'];
-    return `<div class="ep-fallback">${svg}</div>`;
   },
 
   close() {
